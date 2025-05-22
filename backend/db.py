@@ -13,9 +13,9 @@ if not mongo_uri:
     raise RuntimeError("환경 변수 'MONGODB_URI'가 설정되지 않았습니다.")  # ✅ 누락 시 예외 처리
 
 # ✅ 사용할 DB 이름
-mongo_db = os.getenv("MONGODB_DB", "alert_logger")  # 기본값 지정 가능
+mongo_db = os.getenv("MONGODB_DB")  # 기본값 지정 가능
 # ✅ 사용할 컬렉션 이름
-mongo_collection = os.getenv("MONGODB_COLLECTION", "logs")  # 기본값 지정 가능
+mongo_collection = os.getenv("MONGODB_COLLECTION")  # 기본값 지정 가능
 
 # ✅ MongoDB 클라이언트 및 컬렉션 객체 생성
 client = MongoClient(mongo_uri)

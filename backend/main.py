@@ -1,12 +1,11 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Path, Body
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Path, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from uuid import uuid4
 from datetime import datetime
 import json
+
 from db import collection  # MongoDB 컬렉션 불러오기
-import inspect
-from fastapi.routing import APIRoute
 
 
 # ✅ FastAPI 앱 초기화
@@ -78,11 +77,20 @@ async def websocket_endpoint(websocket: WebSocket):
 
 # ✅ 전체 로그 조회 API
 @app.get("/logs")
-async def get_logs():
+async def get_logs(
+    skip: int = Query(0, ge=0, description="건너띌 로그 수"), # 시작 위치: 기본 0
+    limit: int = Query(30, ge=1, le=100, description="가져올 로그 수(최대 100)") # 한번에 가져올 개수: 최대 100
+):
     """
-    저장된 로그들을 최신순으로 최대 100개 반환합니다.
+    저장된 로그들을 최신순으로 정렬한 뒤,
+    skip/limit 기반으로 일부만 페이징해서 반환합니다.
+
+    예: /logs?skip=0&limit=30 → 최근 30개  
+        /logs?skip=30&limit=30 → 그 다음 30개
     """
-    logs_cursor = collection.find().sort("createdAt", -1).limit(100)
+    
+    # MongoDB에서 로그를 createdAt 기준 최신순으로 정렬
+    logs_cursor = collection.find().sort("createdAt", -1).skip(skip).limit(limit)
     logs = []
 
     for log in logs_cursor:
@@ -91,10 +99,10 @@ async def get_logs():
             "type": log["type"],
             "content": log["content"],
             "time": log["time"],
-            "createdAt": log["createdAt"].isoformat(),
-            "isFavorite": log.get("isFavorite", False)  # ✅ 즐겨찾기 포함
+            "createdAt": log["createdAt"].isoformat(), # datetime -> ISO 문자열
+            "isFavorite": log.get("isFavorite", False)  # 없으면 False
         })
-
+    # JSON으로 반환
     return JSONResponse(content=logs)
 
 # ✅ 즐겨찾기 상태 변경 API
