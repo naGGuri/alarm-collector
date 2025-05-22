@@ -1,0 +1,12 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true
+  },
+  "exclude": [
+    "node_modules",     // ✅ 꼭 넣어야 함!
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js"
+  ]
+}
