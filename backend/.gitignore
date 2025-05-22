@@ -1,0 +1,51 @@
+# __pycache__ 및 Python 바이트 코드
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 가상환경 폴더
+venv/
+env/
+.venv/
+ENV/
+
+# 환경변수 파일 (⚠️ 보안 중요)
+.env
+.env.*
+
+# 운영체제별 파일
+.DS_Store
+Thumbs.db
+
+# 로그 및 임시 파일
+*.log
+*.tmp
+
+# pip freeze로 생성되는 종속성 목록
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDE 관련 (선택)
+.vscode/
+.idea/
+
+# FastAPI + Uvicorn 관련 (선택)
+*.sqlite3
+*.db
+*.pid
+*.sock
+instance/
+
+# pytest 캐시
+.pytest_cache/
+
+# coverage 리포트
+htmlcov/
+.coverage
+coverage.xml
+
+# mypy, pylint 등 툴 관련
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
