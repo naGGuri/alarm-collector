@@ -1,6 +1,7 @@
 # backend/main.py
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Path, Body, Query
+# from fastapi import  WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Path, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from uuid import uuid4
@@ -23,58 +24,57 @@ app.add_middleware(
 )
 
 # ✅ 연결된 WebSocket 클라이언트 추적용 리스트
-connections = []
+# connections = []
 
 # ✅ WebSocket 엔드포인트: 실시간 로그 수신 및 브로드캐스트
-@app.websocket("/ws/logs")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    print("🟢 클라이언트 연결됨")
-    connections.append(websocket)
+# @app.websocket("/ws/logs")
+# async def websocket_endpoint(websocket: WebSocket):
+#     await websocket.accept()
+#     print("🟢 클라이언트 연결됨")
+#     connections.append(websocket)
 
-    try:
-        while True:
-            # ✅ 클라이언트로부터 메시지 수신
-            data = await websocket.receive_text()
-            print("📩 수신한 메시지:", data)
+#     try:
+#         while True:
+#             # ✅ 클라이언트로부터 메시지 수신
+#             data = await websocket.receive_text()
+#             print("📩 수신한 메시지:", data)
 
-            try:
-                parsed = json.loads(data)  # JSON 파싱
-                now = datetime.utcnow()
-            except Exception as e:
-                print("❌ JSON 파싱 실패:", e)
-                continue  # 파싱 실패 시 무시하고 다음 메시지 대기
+#             try:
+#                 parsed = json.loads(data)  # JSON 파싱
+#                 now = datetime.utcnow()
+#             except Exception as e:
+#                 print("❌ JSON 파싱 실패:", e)
+#                 continue  # 파싱 실패 시 무시하고 다음 메시지 대기
 
-            # ✅ 로그 객체 생성
-            log = {
-                "id": str(uuid4()),
-                "type": parsed.get("type", "기타"),
-                "content": parsed.get("content", ""),
-                "time": datetime.now().strftime("%H:%M:%S"),
-                "appName": parsed.get("appName", ""),  # ✅ 클라이언트가 보낸 앱 이름
-                "createdAt": now,
-                "isFavorite": False  # ✅ 기본 즐겨찾기 상태 false
-            }
+#             # ✅ 로그 객체 생성
+#             log = {
+#                 "id": str(uuid4()),
+#                 "content": parsed.get("content", ""),
+#                 "time": datetime.now().strftime("%H:%M:%S"),
+#                 "appName": parsed.get("appName", ""),
+#                 "createdAt": now,
+#                 "isFavorite": False  # ✅ 기본 즐겨찾기 상태 false
+#             }
 
-            # ✅ MongoDB에 로그 저장
-            collection.insert_one(log)
-            print("💾 MongoDB에 저장:", log)
+#             # ✅ MongoDB에 로그 저장
+#             collection.insert_one(log)
+#             print("💾 MongoDB에 저장:", log)
 
-            # ✅ 브로드캐스트용 JSON 안전 사본 생성
-            safe_log = log.copy()
-            safe_log["createdAt"] = now.isoformat()
-            safe_log.pop("_id", None)  # MongoDB 내부 ID 제거
+#             # ✅ 브로드캐스트용 JSON 안전 사본 생성
+#             safe_log = log.copy()
+#             safe_log["createdAt"] = now.isoformat()
+#             safe_log.pop("_id", None)  # MongoDB 내부 ID 제거
 
-            # ✅ 연결된 클라이언트 모두에게 전송
-            for conn in connections:
-                try:
-                    await conn.send_text(json.dumps(safe_log))
-                except Exception as e:
-                    print("⚠️ 전송 실패:", e)
+#             # ✅ 연결된 클라이언트 모두에게 전송
+#             for conn in connections:
+#                 try:
+#                     await conn.send_text(json.dumps(safe_log))
+#                 except Exception as e:
+#                     print("⚠️ 전송 실패:", e)
 
-    except WebSocketDisconnect:
-        print("🔌 연결 종료")
-        connections.remove(websocket)  # 끊긴 소켓 제거
+#     except WebSocketDisconnect:
+#         print("🔌 연결 종료")
+#         connections.remove(websocket)  # 끊긴 소켓 제거
 
 
 # ✅ 로그 목록 조회 API (최신순, skip/limit 기반 페이징)
@@ -89,9 +89,8 @@ async def get_logs(
     for log in cursor:
         logs.append({
             "id": log["id"],
-            "type": log["type"],
             "content": log["content"],
-            "appName": log.get("appName", ""),
+            "appName": log.get("appName"),
             "time": log["time"],
             "createdAt": log["createdAt"].isoformat(),
             "isFavorite": log.get("isFavorite", False)

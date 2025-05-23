@@ -39,7 +39,7 @@ const LogItem: React.FC<Props> = ({ log, isSelected, isSelectionMode, onToggleSe
             {/* ✅ 로그의 시간, 타입, 내용 표시 */}
             <View style={{ flex: 1 }}>
                 <Text>
-                    {log.time} - {log.type}
+                    {log.time} - {log.appName}
                 </Text>
                 <Text>{log.content}</Text>
             </View>

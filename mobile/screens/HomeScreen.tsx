@@ -6,7 +6,7 @@ import AppFilterButtons from "../components/AppFilterButtons";
 import LogItem from "../components/LogItem";
 import SelectionBar from "../components/SelectionBar";
 import useLogs from "../hooks/useLogs";
-import useWebSocket from "../hooks/useWebSocket";
+// import useWebSocket from "../hooks/useWebSocket";
 import { exportLogsToJSON } from "../utils/exportLogs";
 import { SectionList } from "react-native";
 
@@ -30,14 +30,16 @@ export default function HomeScreen() {
         isFetchingMore,
     } = useLogs(); // 로그 조회 및 필터링 기능 제공
 
-    const { isConnected } = useWebSocket((newLog) => {
-        setLogs((prev) => [newLog, ...prev]); // 새 로그를 맨 위에 추가
-    });
+    // ✅ 웹소켓 연결 상태(디버깅 전용)
+    // const { isConnected } = useWebSocket((newLog) => {
+    //     setLogs((prev) => [newLog, ...prev]); // 새 로그를 맨 위에 추가
+    // });
 
     useEffect(() => {
         fetchMoreLogs();
     }, []);
 
+    // ✅ 웹소켓 활용한 로그 전송(디버깅 전용)
     // const sendMessage = () => {
     //     if (!input.trim()) return;
     //     send({ type: "앱알림", content: input }); // WebSocket 전송
@@ -118,7 +120,7 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={{ flex: 1, padding: 16 }}>
             {/* 연결생타 확인 컴포넌트 */}
-            <Text style={{ color: isConnected ? "green" : "red" }}>{isConnected ? "🟢 연결됨" : "🔴 연결 끊김"}</Text>
+            {/* <Text style={{ color: isConnected ? "green" : "red" }}>{isConnected ? "🟢 연결됨" : "🔴 연결 끊김"}</Text> */}
             {/* 앱 이름 별로 구분하는 버튼 컴포넌트 */}
             <AppFilterButtons appNames={appNames} selectedApp={selectedApp} onSelectApp={setSelectedApp} />
             {/* 즐겨찾기 선택된 알람만 보기 */}
@@ -178,6 +180,7 @@ export default function HomeScreen() {
                     <Text style={{ fontWeight: "bold", paddingVertical: 6 }}>{title}</Text>
                 )}
             />
+            {/* 웹소켓 이용한 로그 전송(디버깅 전용) */}
             {/* 
             <TextInput
                 value={input}

@@ -16,7 +16,6 @@ db = client[db_name]
 collection = db["logs"]
 
 # 타입 및 앱 이름 정의
-TYPES = ["앱알림", "시스템", "메시지"]
 APPS = ["카카오톡", "인스타그램", "페이스북", "유튜브"]
 
 now = datetime.utcnow()
@@ -25,7 +24,6 @@ logs = []
 for i in range(200):
     log = {
         "id": str(uuid4()),
-        "type": random.choice(TYPES),
         "appName": random.choice(APPS),
         "content": f"샘플 로그 메시지 {i + 1}",
         "time": (now - timedelta(seconds=i * 10)).strftime("%H:%M:%S"),
