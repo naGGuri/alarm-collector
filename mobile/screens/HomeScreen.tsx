@@ -1,6 +1,7 @@
-// HomeScreen.tsx
+// mobile/screens/HomeScreen.tsx
+
 import React, { useState, useEffect } from "react";
-import { View, SafeAreaView, Text, TextInput, Button, TouchableOpacity } from "react-native";
+import { View, SafeAreaView, Text, TouchableOpacity } from "react-native";
 import AppFilterButtons from "../components/AppFilterButtons";
 import LogItem from "../components/LogItem";
 import SelectionBar from "../components/SelectionBar";
@@ -10,10 +11,12 @@ import { exportLogsToJSON } from "../utils/exportLogs";
 import { SectionList } from "react-native";
 
 export default function HomeScreen() {
-    const [input, setInput] = useState("");
-    const [isSelectionMode, setIsSelectionMode] = useState(false);
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    // ✅ 상태 정의
+    // const [input, setInput] = useState(""); // 전송용 텍스트 입력값
+    const [isSelectionMode, setIsSelectionMode] = useState(false); // 다중 선택 모드 여부
+    const [selectedIds, setSelectedIds] = useState<string[]>([]); // 선택된 로그 ID 목록
 
+    // ✅ 커스텀 훅 사용
     const {
         logs,
         setLogs,
@@ -25,30 +28,31 @@ export default function HomeScreen() {
         setShowFavoritesOnly,
         fetchMoreLogs,
         isFetchingMore,
-    } = useLogs();
+    } = useLogs(); // 로그 조회 및 필터링 기능 제공
+
+    const { isConnected } = useWebSocket((newLog) => {
+        setLogs((prev) => [newLog, ...prev]); // 새 로그를 맨 위에 추가
+    });
 
     useEffect(() => {
         fetchMoreLogs();
     }, []);
 
-    const { isConnected, send } = useWebSocket((newLog) => {
-        setLogs((prev) => [newLog, ...prev]);
-    });
+    // const sendMessage = () => {
+    //     if (!input.trim()) return;
+    //     send({ type: "앱알림", content: input }); // WebSocket 전송
+    //     setInput(""); // 입력 초기화
+    // };
 
-    const sendMessage = () => {
-        if (!input.trim()) return;
-        send({ type: "앱알림", content: input });
-        setInput("");
-    };
-
+    // ✅ 선택 기능 제어 함수
     const toggleSelect = (id: string) => {
         setSelectedIds((prev) => (prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]));
     };
 
     const toggleSelectAll = () => {
-        const visibleIds = sections.flatMap((section) => section.data.map((log) => log.id));
+        const visibleIds = sections.flatMap((s) => s.data.map((log) => log.id));
         const allSelected = visibleIds.every((id) => selectedIds.includes(id));
-        setSelectedIds(allSelected ? [] : visibleIds);
+        setSelectedIds(allSelected ? [] : visibleIds); // 전체선택 또는 해제
     };
 
     const toggleSelectionMode = () => {
@@ -56,6 +60,7 @@ export default function HomeScreen() {
         setSelectedIds([]);
     };
 
+    // ✅ 즐겨찾기 추가 / 삭제 함수
     const toggleFavorite = (id: string) => {
         const target = logs.find((log) => log.id === id);
         if (!target) return;
@@ -112,10 +117,11 @@ export default function HomeScreen() {
 
     return (
         <SafeAreaView style={{ flex: 1, padding: 16 }}>
+            {/* 연결생타 확인 컴포넌트 */}
             <Text style={{ color: isConnected ? "green" : "red" }}>{isConnected ? "🟢 연결됨" : "🔴 연결 끊김"}</Text>
-
+            {/* 앱 이름 별로 구분하는 버튼 컴포넌트 */}
             <AppFilterButtons appNames={appNames} selectedApp={selectedApp} onSelectApp={setSelectedApp} />
-
+            {/* 즐겨찾기 선택된 알람만 보기 */}
             <TouchableOpacity onPress={() => setShowFavoritesOnly((prev) => !prev)} style={{ marginBottom: 10 }}>
                 <Text
                     style={{
@@ -128,21 +134,20 @@ export default function HomeScreen() {
                     {showFavoritesOnly ? "⭐ 즐겨찾기만" : "☆ 전체보기"}
                 </Text>
             </TouchableOpacity>
-
+            {/* 백업기능 컴포넌트 */}
             <TouchableOpacity
                 onPress={() => exportLogsToJSON(logs)}
                 style={{ backgroundColor: "#3498db", padding: 10, borderRadius: 6, marginBottom: 12 }}
             >
                 <Text style={{ color: "white" }}>📤 백업하기</Text>
             </TouchableOpacity>
-
+            {/* 선택기능 활성화 컴포넌트 */}
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
                 <Text style={{ marginRight: 8 }}>✔️ 선택 활성화</Text>
                 <TouchableOpacity onPress={toggleSelectionMode}>
                     <Text style={{ fontSize: 18 }}>{isSelectionMode ? "☑️" : "⬜️"}</Text>
                 </TouchableOpacity>
             </View>
-
             {isSelectionMode && (
                 <SelectionBar
                     selectedCount={selectedIds.length}
@@ -150,7 +155,7 @@ export default function HomeScreen() {
                     onDeleteSelected={deleteSelectedLogs}
                 />
             )}
-
+            {/* 알람 로그 화면(무한스크롤) */}
             <SectionList
                 sections={sections}
                 keyExtractor={(item) => item.id}
@@ -173,14 +178,14 @@ export default function HomeScreen() {
                     <Text style={{ fontWeight: "bold", paddingVertical: 6 }}>{title}</Text>
                 )}
             />
-
+            {/* 
             <TextInput
                 value={input}
                 onChangeText={setInput}
                 placeholder="알림 내용 입력"
                 style={{ borderWidth: 1, padding: 10, marginTop: 10 }}
             />
-            <Button title="보내기" onPress={sendMessage} />
+            <Button title="보내기" onPress={sendMessage} /> */}
         </SafeAreaView>
     );
 }
