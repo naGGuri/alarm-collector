@@ -150,3 +150,47 @@ async def delete_logs_bulk(
         "deletedCount": result.deleted_count,
         "deletedIds": ids
     }
+
+from fastapi import Request
+
+# ✅ 로그 복원용 API
+@app.post("/logs/import")
+async def import_logs(request: Request):
+    """
+    프론트에서 전송한 JSON 로그 목록을 받아 MongoDB에 삽입합니다.
+    이미 존재하는 ID는 무시됩니다.
+    """
+    try:
+        body = await request.json()
+        logs = body.get("logs", [])
+
+        if not isinstance(logs, list):
+            raise ValueError("logs 필드가 배열이어야 합니다.")
+
+        inserted = 0
+        for log in logs:
+            # 필수 필드 확인
+            if not log.get("id") or not log.get("createdAt"):
+                continue
+
+            # 중복 방지: 동일 ID 존재하면 건너뜀
+            if collection.find_one({"id": log["id"]}):
+                continue
+
+            # createdAt 문자열 → datetime 객체로 변환
+            log["createdAt"] = datetime.fromisoformat(log["createdAt"])
+
+            # 기본값 보정
+            log.setdefault("isFavorite", False)
+            log.setdefault("appName", "")
+            log.setdefault("time", "")
+
+            # 삽입
+            collection.insert_one(log)
+            inserted += 1
+
+        return {"inserted": inserted, "total": len(logs)}
+
+    except Exception as e:
+        print("❌ 복원 실패:", e)
+        raise HTTPException(status_code=400, detail="복원 요청이 잘못되었습니다.")

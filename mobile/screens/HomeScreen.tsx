@@ -8,6 +8,7 @@ import SelectionBar from "../components/SelectionBar";
 import useLogs from "../hooks/useLogs";
 // import useWebSocket from "../hooks/useWebSocket";
 import { exportLogsToJSON } from "../utils/exportLogs";
+import { importLogsFromJSON } from "../utils/importLogs";
 import { SectionList } from "react-native";
 
 export default function HomeScreen() {
@@ -164,6 +165,19 @@ export default function HomeScreen() {
             >
                 <Text style={{ color: "white" }}>📤 백업하기</Text>
             </TouchableOpacity>
+            {/* 복원하기 컴포넌트 */}
+            <TouchableOpacity
+                onPress={importLogsFromJSON}
+                style={{
+                    backgroundColor: "#27ae60",
+                    padding: 10,
+                    borderRadius: 6,
+                    marginBottom: 12,
+                }}
+            >
+                <Text style={{ color: "white" }}>📥 복원하기</Text>
+            </TouchableOpacity>
+
             {/* 선택기능 활성화 컴포넌트 */}
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
                 <Text style={{ marginRight: 8 }}>✔️ 선택 활성화</Text>
