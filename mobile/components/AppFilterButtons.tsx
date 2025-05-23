@@ -9,10 +9,11 @@ interface Props {
     appNames: string[]; // 필터링 가능한 앱 이름 배열
     selectedApp: string | null; // 현재 선택된 앱 이름 (선택 해제 시 null)
     onSelectApp: (appName: string | null) => void; // 앱 선택 시 호출되는 콜백 함수
+    appCounts: Record<string, number>; // 앱별 로그 갯수
 }
 
 // ✅ 앱 필터 버튼들을 렌더링하는 함수형 컴포넌트
-const AppFilterButtons: React.FC<Props> = ({ appNames, selectedApp, onSelectApp }) => {
+const AppFilterButtons: React.FC<Props> = ({ appNames, selectedApp, onSelectApp, appCounts }) => {
     return (
         <View
             style={{
@@ -51,7 +52,9 @@ const AppFilterButtons: React.FC<Props> = ({ appNames, selectedApp, onSelectApp 
                         borderRadius: 6,
                     }}
                 >
-                    <Text style={{ color: "white" }}>{name}</Text>
+                    <Text style={{ color: "white" }}>
+                        {name}({appCounts[name] ?? 0})
+                    </Text>
                 </TouchableOpacity>
             ))}
         </View>

@@ -9,14 +9,11 @@ const limit = 30; // 한 번에 로드할 로그 개수 제한
 
 // ✅ 로그 관련 상태 및 동작을 제공하는 커스텀 훅 정의
 export default function useLogs() {
-    // 전체 로그 목록 상태
-    const [logs, setLogs] = useState<Log[]>([]);
-    // 페이징을 위한 현재 skip 수치 (몇 개 건너뛰었는지)
-    const [skip, setSkip] = useState(0);
-    // 더 로딩할 데이터가 있는지 여부
-    const [hasMore, setHasMore] = useState(true);
-    // 현재 추가 로딩 중인지 여부
-    const [isFetchingMore, setIsFetchingMore] = useState(false);
+    const [logs, setLogs] = useState<Log[]>([]); // 전체 로그 목록 상태
+    const [skip, setSkip] = useState(0); // 페이징을 위한 현재 skip 수치 (몇 개 건너뛰었는지)
+    const [hasMore, setHasMore] = useState(true); // 더 로딩할 데이터가 있는지 여부
+    const [keyword, setKeyword] = useState(""); // 사용자 입력 키워드 상태
+    const [isFetchingMore, setIsFetchingMore] = useState(false); // 현재 추가 로딩 중인지 여부
 
     // 필터 조건들
     const [filterType, setFilterType] = useState("전체"); // 타입 필터: "전체", "에러", "정보", 등
@@ -57,10 +54,10 @@ export default function useLogs() {
 
     // ✅ 현재 설정된 필터 조건에 맞게 로그 필터링
     const filteredLogs = logs.filter((log) => {
-        const byType = filterType === "전체" || log.type === filterType; // 타입 필터
         const byFavorite = !showFavoritesOnly || log.isFavorite; // 즐겨찾기 필터
         const byApp = !selectedApp || log.appName === selectedApp; // 앱 이름 필터
-        return byType && byFavorite && byApp;
+        const byKeyword = !keyword || log.content.includes(keyword) || log.appName.includes(keyword); // 검색어 필터 (내용 또는 앱이름)
+        return byFavorite && byApp && byKeyword;
     });
 
     // ✅ 필터링된 로그를 날짜 기준으로 그룹화하여 SectionList에 사용
@@ -69,7 +66,13 @@ export default function useLogs() {
     // ✅ 로그들에 존재하는 앱 이름을 추출하여 정렬된 배열 생성 (중복 제거)
     const appNames = Array.from(new Set(logs.map((log) => log.appName).filter((name) => !!name))).sort();
 
-    // ✅ 훅에서 외부로 상태와 함수 반환
+    // ✅ appName 갯수 카운트 함수
+    const appCounts: Record<string, number> = {};
+    logs.forEach((log) => {
+        if (!log.appName) return;
+        appCounts[log.appName] = (appCounts[log.appName] || 0) + 1;
+    });
+
     return {
         logs,
         setLogs,
@@ -77,17 +80,16 @@ export default function useLogs() {
         fetchMoreLogs,
         isFetchingMore,
         hasMore,
-
         sections,
         appNames,
-
         filterType,
         setFilterType,
-
         showFavoritesOnly,
         setShowFavoritesOnly,
-
         selectedApp,
         setSelectedApp,
+        keyword,
+        setKeyword,
+        appCounts,
     };
 }

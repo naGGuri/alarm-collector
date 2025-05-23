@@ -1,7 +1,7 @@
 // mobile/screens/HomeScreen.tsx
 
 import React, { useState, useEffect } from "react";
-import { View, SafeAreaView, Text, TouchableOpacity } from "react-native";
+import { View, SafeAreaView, Text, TouchableOpacity, TextInput } from "react-native";
 import AppFilterButtons from "../components/AppFilterButtons";
 import LogItem from "../components/LogItem";
 import SelectionBar from "../components/SelectionBar";
@@ -28,6 +28,9 @@ export default function HomeScreen() {
         setShowFavoritesOnly,
         fetchMoreLogs,
         isFetchingMore,
+        keyword,
+        setKeyword,
+        appCounts,
     } = useLogs(); // 로그 조회 및 필터링 기능 제공
 
     // ✅ 웹소켓 연결 상태(디버깅 전용)
@@ -122,7 +125,25 @@ export default function HomeScreen() {
             {/* 연결생타 확인 컴포넌트 */}
             {/* <Text style={{ color: isConnected ? "green" : "red" }}>{isConnected ? "🟢 연결됨" : "🔴 연결 끊김"}</Text> */}
             {/* 앱 이름 별로 구분하는 버튼 컴포넌트 */}
-            <AppFilterButtons appNames={appNames} selectedApp={selectedApp} onSelectApp={setSelectedApp} />
+            <AppFilterButtons
+                appNames={appNames}
+                selectedApp={selectedApp}
+                onSelectApp={setSelectedApp}
+                appCounts={appCounts}
+            />
+            {/* 검색창 (검색어 필터) */}
+            <TextInput
+                placeholder="검색어 입력"
+                value={keyword}
+                onChangeText={setKeyword}
+                style={{
+                    borderWidth: 1,
+                    borderColor: "#ccc",
+                    padding: 10,
+                    borderRadius: 6,
+                    marginBottom: 12,
+                }}
+            />
             {/* 즐겨찾기 선택된 알람만 보기 */}
             <TouchableOpacity onPress={() => setShowFavoritesOnly((prev) => !prev)} style={{ marginBottom: 10 }}>
                 <Text
