@@ -49,3 +49,6 @@ coverage.xml
 .dmypy.json
 .pyre/
 .pytype/
+
+# 기타 파일들
+show_alarm_db.sh

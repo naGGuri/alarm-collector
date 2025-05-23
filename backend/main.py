@@ -48,6 +48,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 "type": parsed.get("type", "기타"),
                 "content": parsed.get("content", ""),
                 "time": datetime.now().strftime("%H:%M:%S"),
+                "appName": log.get("appName", ""),  # ✅ 필드 추가됨
                 "createdAt": now,
                 "isFavorite": False  # ✅ 새로 추가 (즐겨찾기 상태 기본값)
             }
@@ -98,6 +99,7 @@ async def get_logs(
             "id": log["id"],
             "type": log["type"],
             "content": log["content"],
+            "appName": log.get("appName", ""),  # ✅ 필드 추가됨
             "time": log["time"],
             "createdAt": log["createdAt"].isoformat(), # datetime -> ISO 문자열
             "isFavorite": log.get("isFavorite", False)  # 없으면 False
