@@ -1,11 +1,13 @@
-import React from 'react';
-import { SafeAreaView } from 'react-native';
-import TimelineScreen from './screens/TimelineScreen';
+// App.tsx
+import React from "react";
+import HomeScreen from "./screens/HomeScreen";
+import { SafeAreaView, StatusBar } from "react-native";
 
 export default function App() {
     return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <TimelineScreen />
-        </SafeAreaView>
+        <>
+            <StatusBar barStyle="dark-content" />
+            <HomeScreen />
+        </>
     );
 }
